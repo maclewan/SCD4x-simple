@@ -514,7 +514,6 @@ class SimpleSCD4x(SCD4xSensirion):
         self.set_temperature_offset(temperature_offset)
         self.set_auto_calibration(value=False)
 
-
     def run_measurements(self):
         """Locking measurements function. Locks main thread until measurements are ready."""
         wt = self.get_conversion_cycle_time()
