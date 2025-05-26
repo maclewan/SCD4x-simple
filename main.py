@@ -1,8 +1,7 @@
 import time
 
-from scd4x_sensirion import SCD4xSensirion
+from scd4x_simple import SCD4xSensirion, I2cAdapter
 from machine import I2C, Pin
-from sensor_pack_2.bus_service import I2cAdapter
 
 
 if __name__ == '__main__':
