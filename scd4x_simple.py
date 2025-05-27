@@ -496,16 +496,16 @@ class SimpleSCD4x(SCD4xSensirion):
     """
 
     def __init__(
-            self,
-            *,
-            scl: int,
-            sda: int,
-            i2c_frequency: int = 400_000,
-            altitude: int = 120,
-            temperature_offset: float = 0.0,
-            address=0x62,
-            this_is_scd41: bool = True,
-            check_crc: bool = True
+        self,
+        *,
+        scl: int,
+        sda: int,
+        i2c_frequency: int = 400_000,
+        altitude: int = 120,
+        temperature_offset: float = 0.0,
+        address=0x62,
+        this_is_scd41: bool = True,
+        check_crc: bool = True
     ):
         i2c = I2C(0, scl=Pin(scl), sda=Pin(sda), freq=i2c_frequency)
         adapter = I2cAdapter(i2c)
@@ -520,3 +520,30 @@ class SimpleSCD4x(SCD4xSensirion):
         self.start_measurement(start=False, single_shot=True, rht_only=False)
         time.sleep_ms(int(1.5 * wt))
         return self.get_measurement_value()
+
+    def ensure_idle(self):
+        attempts = 20
+        for _ in range(attempts):
+            time.sleep(2)
+            try:
+                self.get_id()
+                return True
+            except OSError:
+                continue
+        raise RuntimeError(f"Failed to ensure SCD4x is in IDLE mode after {attempts} attempts.")
+
+    def sleep(self):
+        try:
+            self.set_power(False)
+        except OSError:
+            pass
+        self._low_power_mode = True
+
+    def wake_up(self):
+        try:
+            self.set_power(True)
+        except OSError:
+            pass
+        self.ensure_idle()
+        self._low_power_mode = False
+        return True
